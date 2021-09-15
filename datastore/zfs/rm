@@ -30,12 +30,11 @@ else
     TMCOMMON=$ONE_LOCATION/var/remotes/tm/tm_common.sh
 fi
 
-. $LIB_LOCATION/sh/scripts_common.sh
+source $TMCOMMON
 
 DRIVER_PATH=$(dirname $0)
 source ${DRIVER_PATH}/../libfs.sh
 source ${DRIVER_PATH}/zfs.conf
-source $TMCOMMON
 
 # -------- Get rm and datastore arguments from OpenNebula core ------------
 
@@ -72,22 +71,22 @@ DEV="/dev/zvol/$SRC_PATH"
 
 RM_COMMAND=$(cat <<EOF
     set -e
-    $SUDO $SYNC
+    $SYNC
 
-    $SUDO ${ZFS_CMD} list -H -r -t snapshot -o name $SRC_PATH | while read SNAPSHOT; do
-        CLONE=\$($SUDO ${ZFS_CMD} get -H -o value clones \$SNAPSHOT)
+    ${ZFS_CMD} list -H -r -t snapshot -o name $SRC_PATH | while read SNAPSHOT; do
+        CLONE=\$(${ZFS_CMD} get -H -o value clones \$SNAPSHOT)
 
         if [ "\$CLONE" != "-" ]; then
-            $SUDO $ZFS_CMD promote \$CLONE
+            $ZFS_CMD promote \$CLONE
         fi
     done
 
-    ORIGIN=\$($SUDO ${ZFS_CMD} get -H -o value origin $SRC_PATH)
+    ORIGIN=\$(${ZFS_CMD} get -H -o value origin $SRC_PATH)
 
-    $SUDO ${ZFS_CMD} destroy -r $SRC_PATH
+    ${ZFS_CMD} destroy -r $SRC_PATH
 
     if [ "\$ORIGIN" != "-" ]; then
-        $SUDO ${ZFS_CMD} destroy \$ORIGIN
+        ${ZFS_CMD} destroy \$ORIGIN
     fi
 
 EOF
